@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+**/.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Environment files (secrets)
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Native builds
+ios/
+android/
+
+# Test coverage
+coverage/
+
+# Debug logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Windows artifact
+nul
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# AI agent local configs (session-specific, not project code)
+.claude/
+.gemini/
+.agent/
+
+# Archive (old starter code)
+safar-app/_archive/
+
+# Temporary files
+*.tmp
+.metro-health-check*

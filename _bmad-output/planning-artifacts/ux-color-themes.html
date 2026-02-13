@@ -1,0 +1,2336 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safar — Divine Geometry Color Theme Visualizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+/* ========================================
+   CSS CUSTOM PROPERTIES
+   ======================================== */
+:root {
+  /* Primary */
+  --deep-emerald: #0f2e28;
+  --midnight: #0a1f1b;
+  --parchment: #f4f1ea;
+  --gold: #cfaa6b;
+  --cream: #e8dcc5;
+
+  /* Extended */
+  --white-5: rgba(255,255,255,0.05);
+  --white-10: rgba(255,255,255,0.10);
+  --gold-10: rgba(207,170,107,0.10);
+  --gold-20: rgba(207,170,107,0.20);
+  --gold-30: rgba(207,170,107,0.30);
+
+  /* Semantic */
+  --success: #2d6a4f;
+  --warning: #d4a043;
+  --error: #c2636b;
+
+  /* Fonts */
+  --font-arabic: 'Amiri', serif;
+  --font-heading: 'Fraunces', serif;
+  --font-body: 'Outfit', sans-serif;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+/* ========================================
+   RESET & BASE
+   ======================================== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--midnight);
+  color: var(--cream);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ========================================
+   ISLAMIC GEOMETRIC SVG BACKGROUND
+   ======================================== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23cfaa6b' stroke-width='0.5'%3E%3Cpolygon points='60,10 90,30 90,70 60,90 30,70 30,30'/%3E%3Cpolygon points='60,20 80,35 80,65 60,80 40,65 40,35'/%3E%3Cline x1='60' y1='10' x2='60' y2='20'/%3E%3Cline x1='90' y1='30' x2='80' y2='35'/%3E%3Cline x1='90' y1='70' x2='80' y2='65'/%3E%3Cline x1='60' y1='90' x2='60' y2='80'/%3E%3Cline x1='30' y1='70' x2='40' y2='65'/%3E%3Cline x1='30' y1='30' x2='40' y2='35'/%3E%3Ccircle cx='60' cy='50' r='8'/%3E%3Cline x1='60' y1='0' x2='60' y2='10'/%3E%3Cline x1='60' y1='90' x2='60' y2='120'/%3E%3Cline x1='0' y1='30' x2='30' y2='30'/%3E%3Cline x1='90' y1='30' x2='120' y2='30'/%3E%3Cline x1='0' y1='70' x2='30' y2='70'/%3E%3Cline x1='90' y1='70' x2='120' y2='70'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 120px 120px;
+}
+
+/* Noise texture overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* ========================================
+   SCROLL ANIMATIONS
+   ======================================== */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fade-in-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========================================
+   NAVIGATION
+   ======================================== */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(10, 31, 27, 0.85);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border-bottom: 1px solid var(--white-10);
+  padding: var(--space-md) var(--space-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.3s;
+}
+
+nav .nav-brand {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
+nav .nav-brand span {
+  font-family: var(--font-arabic);
+  font-size: 1.1rem;
+  margin-left: var(--space-sm);
+  opacity: 0.7;
+}
+
+nav .nav-links {
+  display: flex;
+  gap: var(--space-lg);
+  list-style: none;
+  flex-wrap: wrap;
+}
+
+nav .nav-links a {
+  color: var(--cream);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  transition: opacity 0.2s, color 0.2s;
+  position: relative;
+}
+
+nav .nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+nav .nav-links a:hover {
+  opacity: 1;
+  color: var(--gold);
+}
+
+nav .nav-links a:hover::after {
+  width: 100%;
+}
+
+/* ========================================
+   LAYOUT
+   ======================================== */
+main {
+  position: relative;
+  z-index: 1;
+}
+
+.section {
+  padding: var(--space-4xl) var(--space-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--gold-30);
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  font-weight: 500;
+  color: var(--cream);
+  margin-bottom: var(--space-md);
+  line-height: 1.15;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--cream);
+  opacity: 0.6;
+  max-width: 580px;
+  line-height: 1.7;
+  margin-bottom: var(--space-2xl);
+}
+
+/* ========================================
+   HERO SECTION
+   ======================================== */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--midnight) 0%,
+    var(--deep-emerald) 30%,
+    #143832 50%,
+    var(--deep-emerald) 70%,
+    var(--midnight) 100%
+  );
+}
+
+#hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, var(--gold-20) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Islamic star pattern for hero */
+#hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23cfaa6b' stroke-width='0.6'%3E%3Cpolygon points='100,10 118,40 150,40 126,60 134,92 100,74 66,92 74,60 50,40 82,40'/%3E%3Cpolygon points='100,10 118,40 150,40 126,60 134,92 100,74 66,92 74,60 50,40 82,40' transform='rotate(36 100 100)'/%3E%3Ccircle cx='100' cy='100' r='45'/%3E%3Ccircle cx='100' cy='100' r='30'/%3E%3Cpolygon points='100,55 112,78 100,100 88,78'/%3E%3Cpolygon points='100,55 112,78 100,100 88,78' transform='rotate(72 100 100)'/%3E%3Cpolygon points='100,55 112,78 100,100 88,78' transform='rotate(144 100 100)'/%3E%3Cpolygon points='100,55 112,78 100,100 88,78' transform='rotate(216 100 100)'/%3E%3Cpolygon points='100,55 112,78 100,100 88,78' transform='rotate(288 100 100)'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-arabic {
+  font-family: var(--font-arabic);
+  font-size: 5rem;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: var(--space-md);
+  text-shadow: 0 0 60px rgba(207, 170, 107, 0.3);
+  animation: heroFadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: 3.5rem;
+  font-weight: 400;
+  color: var(--cream);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-lg);
+  animation: heroFadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+.hero-tagline {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--cream);
+  opacity: 0.55;
+  letter-spacing: 0.08em;
+  max-width: 500px;
+  margin: 0 auto var(--space-3xl);
+  animation: heroFadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+}
+
+.hero-palette-strip {
+  display: flex;
+  gap: 3px;
+  border-radius: 100px;
+  overflow: hidden;
+  padding: 3px;
+  background: var(--white-10);
+  backdrop-filter: blur(10px);
+  animation: heroFadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+}
+
+.hero-palette-strip .strip-color {
+  width: 48px;
+  height: 48px;
+  border-radius: 100px;
+  transition: transform 0.3s, width 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
+.hero-palette-strip .strip-color:hover {
+  transform: scale(1.15);
+  z-index: 2;
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   COLOR SWATCHES SECTION
+   ======================================== */
+.swatches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-lg);
+}
+
+.swatch-card {
+  background: var(--white-5);
+  border: 1px solid var(--white-10);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
+.swatch-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-color: var(--gold-30);
+}
+
+.swatch-color {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.swatch-color .hex-overlay {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transition: opacity 0.3s;
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(8px);
+}
+
+.swatch-card:hover .hex-overlay {
+  opacity: 1;
+}
+
+.swatch-info {
+  padding: var(--space-md);
+}
+
+.swatch-name {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.swatch-hex {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  opacity: 0.5;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  margin-bottom: 2px;
+}
+
+.swatch-var {
+  font-family: monospace;
+  font-size: 0.68rem;
+  opacity: 0.35;
+  margin-bottom: var(--space-sm);
+}
+
+.swatch-usage {
+  font-size: 0.75rem;
+  opacity: 0.5;
+  line-height: 1.5;
+}
+
+.swatch-contrast {
+  margin-top: var(--space-sm);
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.contrast-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+
+.contrast-badge.pass-aaa {
+  background: var(--success);
+  color: var(--cream);
+}
+
+.contrast-badge.pass-aa {
+  background: var(--warning);
+  color: var(--midnight);
+}
+
+.contrast-badge.fail {
+  background: var(--error);
+  color: var(--cream);
+}
+
+/* Divider for groups */
+.swatch-group-title {
+  grid-column: 1 / -1;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--gold);
+  padding-top: var(--space-lg);
+  margin-bottom: calc(-1 * var(--space-sm));
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.swatch-group-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--white-10);
+}
+
+/* ========================================
+   THEME PREVIEW SECTION
+   ======================================== */
+.theme-previews-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+}
+
+@media (max-width: 900px) {
+  .theme-previews-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+.phone-frame {
+  border-radius: 32px;
+  border: 2px solid var(--white-10);
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 9 / 17;
+  max-height: 700px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+}
+
+.phone-frame .status-bar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-lg);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.phone-frame .status-bar .time {
+  font-weight: 700;
+}
+
+.phone-frame .status-bar .icons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.phone-frame .status-bar .icon-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+
+.phone-frame .screen-content {
+  padding: var(--space-lg);
+  min-height: 500px;
+}
+
+/* -- Dark Theme Phone -- */
+.dark-phone {
+  background: var(--midnight);
+}
+
+.dark-phone .status-bar {
+  color: var(--cream);
+}
+
+.dark-phone .status-bar .icon-dot {
+  background: var(--cream);
+}
+
+.dark-phone .lesson-header {
+  margin-bottom: var(--space-lg);
+}
+
+.dark-phone .lesson-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: var(--space-xs);
+}
+
+.dark-phone .lesson-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--cream);
+}
+
+.dark-phone .word-card {
+  background: var(--white-5);
+  border: 1px solid var(--white-10);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
+  margin-bottom: var(--space-lg);
+  backdrop-filter: blur(10px);
+}
+
+.dark-phone .arabic-word {
+  font-family: var(--font-arabic);
+  font-size: 2.8rem;
+  color: var(--gold);
+  margin-bottom: var(--space-sm);
+  line-height: 1.4;
+}
+
+.dark-phone .transliteration {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--cream);
+  opacity: 0.5;
+  margin-bottom: var(--space-xs);
+}
+
+.dark-phone .meaning {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--cream);
+  opacity: 0.8;
+}
+
+.dark-phone .root-reveal {
+  background: var(--gold-10);
+  border: 1px solid var(--gold-20);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.dark-phone .root-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gold-20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-arabic);
+  font-size: 0.9rem;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.dark-phone .root-text .root-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+
+.dark-phone .root-text .root-letters {
+  font-family: var(--font-arabic);
+  font-size: 1.1rem;
+  color: var(--cream);
+}
+
+.dark-phone .quiz-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.dark-phone .quiz-option {
+  background: var(--white-5);
+  border: 1px solid var(--white-10);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--cream);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.dark-phone .quiz-option.selected {
+  border-color: var(--gold);
+  background: var(--gold-10);
+  color: var(--gold);
+}
+
+.dark-phone .quiz-option.correct {
+  border-color: var(--success);
+  background: rgba(45, 106, 79, 0.15);
+  color: #7cc9a5;
+}
+
+/* -- Light Theme Phone -- */
+.light-phone {
+  background: var(--parchment);
+}
+
+.light-phone .status-bar {
+  color: var(--deep-emerald);
+}
+
+.light-phone .status-bar .icon-dot {
+  background: var(--deep-emerald);
+}
+
+.light-phone .dash-greeting {
+  margin-bottom: var(--space-xl);
+}
+
+.light-phone .dash-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: var(--space-xs);
+}
+
+.light-phone .dash-name {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--deep-emerald);
+}
+
+.light-phone .progress-ring-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  box-shadow: 0 2px 16px rgba(15, 46, 40, 0.06);
+}
+
+.light-phone .progress-ring {
+  width: 72px;
+  height: 72px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.light-phone .progress-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.light-phone .progress-ring .ring-bg {
+  fill: none;
+  stroke: #e0ddd6;
+  stroke-width: 5;
+}
+
+.light-phone .progress-ring .ring-fill {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 188.5;
+  stroke-dashoffset: 56.5;
+}
+
+.light-phone .progress-ring .ring-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--deep-emerald);
+}
+
+.light-phone .progress-info {
+  flex: 1;
+}
+
+.light-phone .progress-info .progress-title {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--deep-emerald);
+  margin-bottom: 2px;
+}
+
+.light-phone .progress-info .progress-sub {
+  font-size: 0.75rem;
+  color: var(--deep-emerald);
+  opacity: 0.5;
+}
+
+.light-phone .streak-row {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.light-phone .streak-card {
+  flex: 1;
+  background: white;
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  text-align: center;
+  box-shadow: 0 2px 16px rgba(15, 46, 40, 0.06);
+}
+
+.light-phone .streak-num {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--deep-emerald);
+}
+
+.light-phone .streak-label {
+  font-size: 0.65rem;
+  color: var(--deep-emerald);
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.light-phone .streak-card.gold-accent .streak-num {
+  color: var(--gold);
+}
+
+.light-phone .pathway-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--deep-emerald);
+  opacity: 0.4;
+  margin-bottom: var(--space-sm);
+}
+
+.light-phone .pathway-card {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  box-shadow: 0 2px 16px rgba(15, 46, 40, 0.06);
+  border-left: 3px solid var(--gold);
+}
+
+.light-phone .pathway-card .pw-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--gold-10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-arabic);
+  font-size: 1rem;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.light-phone .pathway-card .pw-info .pw-title {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--deep-emerald);
+}
+
+.light-phone .pathway-card .pw-info .pw-sub {
+  font-size: 0.68rem;
+  color: var(--deep-emerald);
+  opacity: 0.45;
+}
+
+/* Theme label */
+.theme-label {
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--cream);
+  margin-top: var(--space-lg);
+  opacity: 0.6;
+}
+
+/* ========================================
+   TYPOGRAPHY SECTION
+   ======================================== */
+.type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+}
+
+@media (max-width: 768px) {
+  .type-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.type-panel {
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  border: 1px solid var(--white-10);
+}
+
+.type-panel.dark-panel {
+  background: var(--midnight);
+}
+
+.type-panel.light-panel {
+  background: var(--parchment);
+  border-color: rgba(15, 46, 40, 0.08);
+}
+
+.type-panel .panel-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid;
+}
+
+.type-panel.dark-panel .panel-label {
+  color: var(--gold);
+  border-color: var(--white-10);
+}
+
+.type-panel.light-panel .panel-label {
+  color: var(--gold);
+  border-color: rgba(15, 46, 40, 0.1);
+}
+
+.type-sample {
+  margin-bottom: var(--space-xl);
+}
+
+.type-sample .type-meta {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-xs);
+}
+
+.dark-panel .type-meta { color: var(--gold); opacity: 0.6; }
+.light-panel .type-meta { color: var(--gold); }
+
+.type-sample .type-text-amiri {
+  font-family: var(--font-arabic);
+  line-height: 1.6;
+}
+
+.type-sample .type-text-fraunces {
+  font-family: var(--font-heading);
+  line-height: 1.25;
+}
+
+.type-sample .type-text-outfit {
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+
+.dark-panel .type-text-amiri,
+.dark-panel .type-text-fraunces,
+.dark-panel .type-text-outfit { color: var(--cream); }
+
+.light-panel .type-text-amiri,
+.light-panel .type-text-fraunces,
+.light-panel .type-text-outfit { color: var(--deep-emerald); }
+
+/* ========================================
+   COMPONENT EXAMPLES
+   ======================================== */
+.components-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+}
+
+@media (max-width: 900px) {
+  .components-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.component-panel {
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  border: 1px solid;
+}
+
+.component-panel.dark-comp {
+  background: var(--midnight);
+  border-color: var(--white-10);
+}
+
+.component-panel.light-comp {
+  background: var(--parchment);
+  border-color: rgba(15, 46, 40, 0.08);
+}
+
+.comp-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-xl);
+}
+
+.dark-comp .comp-label { color: var(--gold); }
+.light-comp .comp-label { color: var(--gold); }
+
+.comp-row {
+  margin-bottom: var(--space-xl);
+}
+
+.comp-row-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-sm);
+  opacity: 0.5;
+}
+
+.dark-comp .comp-row-label { color: var(--cream); }
+.light-comp .comp-row-label { color: var(--deep-emerald); }
+
+/* Buttons */
+.btn-primary {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 14px 32px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  background: var(--gold);
+  color: var(--midnight);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(207, 170, 107, 0.3);
+}
+
+.btn-secondary-dark {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 14px 32px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background: transparent;
+  color: var(--cream);
+  border: 1px solid var(--white-10);
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+  display: inline-block;
+}
+
+.btn-secondary-dark:hover {
+  border-color: var(--gold-30);
+  background: var(--white-5);
+}
+
+.btn-secondary-light {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 14px 32px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background: transparent;
+  color: var(--deep-emerald);
+  border: 1px solid rgba(15, 46, 40, 0.15);
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+  display: inline-block;
+}
+
+.btn-secondary-light:hover {
+  border-color: var(--gold);
+  background: rgba(15, 46, 40, 0.03);
+}
+
+.btn-row {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+/* Input */
+.input-dark {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--white-10);
+  background: var(--white-5);
+  color: var(--cream);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-dark::placeholder { color: var(--cream); opacity: 0.3; }
+.input-dark:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-10);
+}
+
+.input-light {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(15, 46, 40, 0.12);
+  background: white;
+  color: var(--deep-emerald);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-light::placeholder { color: var(--deep-emerald); opacity: 0.3; }
+.input-light:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-10);
+}
+
+/* Cards */
+.comp-card {
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-sm);
+}
+
+.card-dark-content {
+  background: var(--white-5);
+  border: 1px solid var(--white-10);
+}
+
+.card-dark-glass {
+  background: rgba(207, 170, 107, 0.05);
+  border: 1px solid var(--gold-20);
+  backdrop-filter: blur(12px);
+}
+
+.card-light-content {
+  background: white;
+  border: 1px solid rgba(15, 46, 40, 0.06);
+  box-shadow: 0 2px 12px rgba(15, 46, 40, 0.04);
+}
+
+.card-light-pathway {
+  background: white;
+  border: 1px solid rgba(15, 46, 40, 0.06);
+  border-left: 3px solid var(--gold);
+  box-shadow: 0 2px 12px rgba(15, 46, 40, 0.04);
+}
+
+.comp-card .card-title {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.comp-card .card-text {
+  font-size: 0.78rem;
+  opacity: 0.55;
+  line-height: 1.5;
+}
+
+.dark-comp .card-title { color: var(--cream); }
+.dark-comp .card-text { color: var(--cream); }
+.light-comp .card-title { color: var(--deep-emerald); }
+.light-comp .card-text { color: var(--deep-emerald); }
+
+/* Nav Bars */
+.comp-nav {
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.comp-nav-dark {
+  background: var(--white-5);
+  border: 1px solid var(--white-10);
+}
+
+.comp-nav-light {
+  background: white;
+  border: 1px solid rgba(15, 46, 40, 0.06);
+  box-shadow: 0 -2px 12px rgba(15, 46, 40, 0.04);
+}
+
+.nav-item-d, .nav-item-l {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+.nav-item-d { color: var(--cream); opacity: 0.4; }
+.nav-item-d.active { color: var(--gold); opacity: 1; background: var(--gold-10); }
+.nav-item-l { color: var(--deep-emerald); opacity: 0.4; }
+.nav-item-l.active { color: var(--gold); opacity: 1; background: var(--gold-10); }
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+}
+
+/* ========================================
+   CONTRAST CHECKER TABLE
+   ======================================== */
+.contrast-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--white-10);
+  background: var(--white-5);
+}
+
+.contrast-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+}
+
+.contrast-table th {
+  padding: var(--space-sm) var(--space-md);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.6rem;
+  color: var(--gold);
+  border-bottom: 1px solid var(--white-10);
+  position: sticky;
+  top: 0;
+  background: rgba(10, 31, 27, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+.contrast-table td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: center;
+  border-bottom: 1px solid var(--white-5);
+  font-weight: 600;
+  font-family: var(--font-body);
+}
+
+.contrast-table .row-label {
+  text-align: left;
+  font-weight: 700;
+  color: var(--cream);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.contrast-table .row-label .color-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  border: 1px solid var(--white-10);
+}
+
+.ratio-cell {
+  border-radius: 4px;
+  padding: 4px 8px !important;
+  font-size: 0.65rem;
+}
+
+.ratio-cell.aaa { background: var(--success); color: var(--cream); }
+.ratio-cell.aa { background: var(--warning); color: var(--midnight); }
+.ratio-cell.aa-large { background: rgba(212, 160, 67, 0.3); color: var(--warning); }
+.ratio-cell.fail { background: rgba(194, 99, 107, 0.15); color: var(--error); }
+.ratio-cell.self { background: var(--white-5); color: var(--cream); opacity: 0.3; }
+
+/* ========================================
+   ACCESSIBILITY / COLOR BLINDNESS
+   ======================================== */
+.cb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-xl);
+}
+
+.cb-panel {
+  background: var(--white-5);
+  border: 1px solid var(--white-10);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+}
+
+.cb-panel .cb-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cream);
+  margin-bottom: 4px;
+}
+
+.cb-panel .cb-desc {
+  font-size: 0.75rem;
+  color: var(--cream);
+  opacity: 0.4;
+  margin-bottom: var(--space-lg);
+  line-height: 1.5;
+}
+
+.cb-swatches {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cb-swatch {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--white-10);
+  position: relative;
+}
+
+.cb-swatch .cb-swatch-label {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5rem;
+  color: var(--cream);
+  opacity: 0.4;
+  white-space: nowrap;
+}
+
+/* ========================================
+   COPY TOOLTIP
+   ======================================== */
+.copy-tooltip {
+  position: fixed;
+  bottom: var(--space-xl);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--gold);
+  color: var(--midnight);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 100px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 2000;
+}
+
+.copy-tooltip.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+footer {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-xl);
+  font-size: 0.72rem;
+  color: var(--cream);
+  opacity: 0.25;
+  position: relative;
+  z-index: 1;
+}
+
+footer .footer-line {
+  width: 60px;
+  height: 1px;
+  background: var(--gold-20);
+  margin: 0 auto var(--space-md);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .section { padding: var(--space-2xl) var(--space-md); }
+  .section-title { font-size: 1.8rem; }
+  .hero-arabic { font-size: 3.5rem; }
+  .hero-title { font-size: 2.2rem; }
+  .swatches-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  nav .nav-links { display: none; }
+  .components-grid { grid-template-columns: 1fr; }
+  .type-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+  <div class="nav-brand">Safar <span>&#1587;&#1614;&#1601;&#1614;&#1585;</span></div>
+  <ul class="nav-links">
+    <li><a href="#colors">Colors</a></li>
+    <li><a href="#themes">Themes</a></li>
+    <li><a href="#typography">Typography</a></li>
+    <li><a href="#components">Components</a></li>
+    <li><a href="#contrast">Contrast</a></li>
+    <li><a href="#accessibility">Accessibility</a></li>
+  </ul>
+</nav>
+
+<!-- COPY TOOLTIP -->
+<div class="copy-tooltip" id="copyTooltip">Copied to clipboard</div>
+
+<main>
+
+<!-- ==========================================
+     HERO SECTION
+     ========================================== -->
+<section id="hero">
+  <div class="hero-content">
+    <div class="hero-arabic">&#1587;&#1614;&#1601;&#1614;&#1585;</div>
+    <h1 class="hero-title">Safar</h1>
+    <p class="hero-tagline">Divine Geometry Design System &mdash; Color Theme Visualizer</p>
+    <div class="hero-palette-strip">
+      <div class="strip-color" style="background: var(--midnight);" title="#0a1f1b Midnight"></div>
+      <div class="strip-color" style="background: var(--deep-emerald);" title="#0f2e28 Deep Emerald"></div>
+      <div class="strip-color" style="background: var(--success);" title="#2d6a4f Success"></div>
+      <div class="strip-color" style="background: var(--gold);" title="#cfaa6b Gold"></div>
+      <div class="strip-color" style="background: var(--warning);" title="#d4a043 Warning"></div>
+      <div class="strip-color" style="background: var(--cream);" title="#e8dcc5 Cream"></div>
+      <div class="strip-color" style="background: var(--parchment);" title="#f4f1ea Parchment"></div>
+      <div class="strip-color" style="background: var(--error);" title="#c2636b Error"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     COLOR SWATCHES
+     ========================================== -->
+<section id="colors" class="section">
+  <div class="fade-in-up">
+    <div class="section-label">Palette</div>
+    <h2 class="section-title">Color Swatches</h2>
+    <p class="section-subtitle">Click any swatch to copy its hex code. Each color is shown with its CSS variable, usage context, and WCAG contrast ratios against key backgrounds.</p>
+  </div>
+
+  <div class="swatches-grid fade-in-up">
+
+    <div class="swatch-group-title">Primary Colors</div>
+
+    <!-- Deep Emerald -->
+    <div class="swatch-card" data-color="#0f2e28" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: #0f2e28;">
+        <span class="hex-overlay" style="color: var(--cream);">#0f2e28</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Deep Emerald</div>
+        <div class="swatch-hex">#0f2e28</div>
+        <div class="swatch-var">--deep-emerald</div>
+        <div class="swatch-usage">Primary brand color. Text on light backgrounds. Card borders and accents.</div>
+        <div class="swatch-contrast">
+          <span class="contrast-badge pass-aaa" title="vs Parchment: 12.8:1">Parchment AAA</span>
+          <span class="contrast-badge pass-aaa" title="vs Cream: 10.6:1">Cream AAA</span>
+          <span class="contrast-badge pass-aa" title="vs Gold: 5.2:1">Gold AA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Midnight -->
+    <div class="swatch-card" data-color="#0a1f1b" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: #0a1f1b;">
+        <span class="hex-overlay" style="color: var(--cream);">#0a1f1b</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Midnight</div>
+        <div class="swatch-hex">#0a1f1b</div>
+        <div class="swatch-var">--midnight</div>
+        <div class="swatch-usage">Dark theme background. Deep immersive canvas for lesson screens and focus modes.</div>
+        <div class="swatch-contrast">
+          <span class="contrast-badge pass-aaa" title="vs Parchment: 15.1:1">Parchment AAA</span>
+          <span class="contrast-badge pass-aaa" title="vs Cream: 12.5:1">Cream AAA</span>
+          <span class="contrast-badge pass-aaa" title="vs Gold: 6.1:1">Gold AAA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parchment -->
+    <div class="swatch-card" data-color="#f4f1ea" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: #f4f1ea;">
+        <span class="hex-overlay" style="color: var(--deep-emerald);">#f4f1ea</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Parchment</div>
+        <div class="swatch-hex">#f4f1ea</div>
+        <div class="swatch-var">--parchment</div>
+        <div class="swatch-usage">Light theme background. Warm, inviting canvas inspired by aged manuscript paper.</div>
+        <div class="swatch-contrast">
+          <span class="contrast-badge pass-aaa" title="vs Deep Emerald: 12.8:1">Emerald AAA</span>
+          <span class="contrast-badge pass-aaa" title="vs Midnight: 15.1:1">Midnight AAA</span>
+          <span class="contrast-badge fail" title="vs Gold: 2.5:1">Gold Fail</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gold -->
+    <div class="swatch-card" data-color="#cfaa6b" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: #cfaa6b;">
+        <span class="hex-overlay" style="color: var(--midnight);">#cfaa6b</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Gold</div>
+        <div class="swatch-hex">#cfaa6b</div>
+        <div class="swatch-var">--gold</div>
+        <div class="swatch-usage">Accent and CTA color. Buttons, highlights, active states, decorative elements.</div>
+        <div class="swatch-contrast">
+          <span class="contrast-badge pass-aaa" title="vs Midnight: 6.1:1">Midnight AAA</span>
+          <span class="contrast-badge pass-aa" title="vs Deep Emerald: 5.2:1">Emerald AA</span>
+          <span class="contrast-badge fail" title="vs Parchment: 2.5:1">Parchment Fail</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cream -->
+    <div class="swatch-card" data-color="#e8dcc5" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: #e8dcc5;">
+        <span class="hex-overlay" style="color: var(--deep-emerald);">#e8dcc5</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Cream</div>
+        <div class="swatch-hex">#e8dcc5</div>
+        <div class="swatch-var">--cream</div>
+        <div class="swatch-usage">Body text on dark backgrounds. Secondary UI text. Subtle borders on light.</div>
+        <div class="swatch-contrast">
+          <span class="contrast-badge pass-aaa" title="vs Midnight: 12.5:1">Midnight AAA</span>
+          <span class="contrast-badge pass-aaa" title="vs Deep Emerald: 10.6:1">Emerald AAA</span>
+          <span class="contrast-badge fail" title="vs Parchment: 1.2:1">Parchment Fail</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="swatch-group-title">Extended Palette (Opacity Variants)</div>
+
+    <!-- White 5% -->
+    <div class="swatch-card" data-color="rgba(255,255,255,0.05)" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: var(--midnight);">
+        <div style="position:absolute;inset:0;background:rgba(255,255,255,0.05);"></div>
+        <span class="hex-overlay" style="color: var(--cream); position: relative; z-index:1;">rgba(255,255,255,0.05)</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">White 5%</div>
+        <div class="swatch-hex">rgba(255,255,255,0.05)</div>
+        <div class="swatch-var">--white-5</div>
+        <div class="swatch-usage">Subtle card backgrounds on dark theme. Minimal elevation.</div>
+      </div>
+    </div>
+
+    <!-- White 10% -->
+    <div class="swatch-card" data-color="rgba(255,255,255,0.10)" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: var(--midnight);">
+        <div style="position:absolute;inset:0;background:rgba(255,255,255,0.10);"></div>
+        <span class="hex-overlay" style="color: var(--cream); position: relative; z-index:1;">rgba(255,255,255,0.10)</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">White 10%</div>
+        <div class="swatch-hex">rgba(255,255,255,0.10)</div>
+        <div class="swatch-var">--white-10</div>
+        <div class="swatch-usage">Borders on dark theme. Dividers. Hover states.</div>
+      </div>
+    </div>
+
+    <!-- Gold 10% -->
+    <div class="swatch-card" data-color="rgba(207,170,107,0.10)" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: var(--midnight);">
+        <div style="position:absolute;inset:0;background:rgba(207,170,107,0.10);"></div>
+        <span class="hex-overlay" style="color: var(--gold); position: relative; z-index:1;">rgba(207,170,107,0.10)</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Gold 10%</div>
+        <div class="swatch-hex">rgba(207,170,107,0.10)</div>
+        <div class="swatch-var">--gold-10</div>
+        <div class="swatch-usage">Active nav item background. Subtle gold tint for emphasis areas.</div>
+      </div>
+    </div>
+
+    <!-- Gold 20% -->
+    <div class="swatch-card" data-color="rgba(207,170,107,0.20)" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: var(--midnight);">
+        <div style="position:absolute;inset:0;background:rgba(207,170,107,0.20);"></div>
+        <span class="hex-overlay" style="color: var(--gold); position: relative; z-index:1;">rgba(207,170,107,0.20)</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Gold 20%</div>
+        <div class="swatch-hex">rgba(207,170,107,0.20)</div>
+        <div class="swatch-var">--gold-20</div>
+        <div class="swatch-usage">Root reveal card borders. Glassmorphism panel tint. Decorative overlays.</div>
+      </div>
+    </div>
+
+    <!-- Gold 30% -->
+    <div class="swatch-card" data-color="rgba(207,170,107,0.30)" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: var(--midnight);">
+        <div style="position:absolute;inset:0;background:rgba(207,170,107,0.30);"></div>
+        <span class="hex-overlay" style="color: var(--gold); position: relative; z-index:1;">rgba(207,170,107,0.30)</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Gold 30%</div>
+        <div class="swatch-hex">rgba(207,170,107,0.30)</div>
+        <div class="swatch-var">--gold-30</div>
+        <div class="swatch-usage">Stronger gold tint. Hover border accent. Section divider lines.</div>
+      </div>
+    </div>
+
+    <div class="swatch-group-title">Semantic Colors</div>
+
+    <!-- Success -->
+    <div class="swatch-card" data-color="#2d6a4f" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: #2d6a4f;">
+        <span class="hex-overlay" style="color: var(--cream);">#2d6a4f</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Success</div>
+        <div class="swatch-hex">#2d6a4f</div>
+        <div class="swatch-var">--success</div>
+        <div class="swatch-usage">Correct answers, completion states, positive feedback. Muted emerald blends with brand.</div>
+        <div class="swatch-contrast">
+          <span class="contrast-badge pass-aa" title="vs Cream: 4.9:1">Cream AA</span>
+          <span class="contrast-badge pass-aaa" title="vs Parchment: 5.8:1">Parchment AAA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warning -->
+    <div class="swatch-card" data-color="#d4a043" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: #d4a043;">
+        <span class="hex-overlay" style="color: var(--midnight);">#d4a043</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Warning</div>
+        <div class="swatch-hex">#d4a043</div>
+        <div class="swatch-var">--warning</div>
+        <div class="swatch-usage">Caution states, streak reminders, expiring content. Warm amber tone.</div>
+        <div class="swatch-contrast">
+          <span class="contrast-badge pass-aaa" title="vs Midnight: 6.4:1">Midnight AAA</span>
+          <span class="contrast-badge pass-aa" title="vs Deep Emerald: 5.5:1">Emerald AA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="swatch-card" data-color="#c2636b" onclick="copyColor(this)">
+      <div class="swatch-color" style="background: #c2636b;">
+        <span class="hex-overlay" style="color: var(--cream);">#c2636b</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Error</div>
+        <div class="swatch-hex">#c2636b</div>
+        <div class="swatch-var">--error</div>
+        <div class="swatch-usage">Wrong answers, validation errors, destructive actions. Muted rose &mdash; never a harsh red.</div>
+        <div class="swatch-contrast">
+          <span class="contrast-badge pass-aa" title="vs Midnight: 4.8:1">Midnight AA</span>
+          <span class="contrast-badge fail" title="vs Parchment: 3.1:1">Parchment Fail</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==========================================
+     THEME PREVIEWS
+     ========================================== -->
+<section id="themes" class="section">
+  <div class="fade-in-up">
+    <div class="section-label">Themes</div>
+    <h2 class="section-title">Screen Mockups</h2>
+    <p class="section-subtitle">Side-by-side previews showing how the color palette works across dark (lesson) and light (dashboard) contexts.</p>
+  </div>
+
+  <div class="theme-previews-wrapper fade-in-up">
+    <!-- Dark Theme Phone -->
+    <div>
+      <div class="phone-frame dark-phone">
+        <div class="status-bar">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <span class="icon-dot"></span>
+            <span class="icon-dot"></span>
+            <span class="icon-dot"></span>
+          </span>
+        </div>
+        <div class="screen-content">
+          <div class="lesson-header">
+            <div class="lesson-label">Lesson 3 &middot; Vocabulary</div>
+            <div class="lesson-title">The Root System</div>
+          </div>
+
+          <div class="word-card">
+            <div class="arabic-word">&#1603;&#1614;&#1578;&#1614;&#1576;&#1614;</div>
+            <div class="transliteration">ka-ta-ba</div>
+            <div class="meaning">He wrote</div>
+          </div>
+
+          <div class="root-reveal">
+            <div class="root-icon">&#1603;</div>
+            <div class="root-text">
+              <div class="root-label">Root Letters</div>
+              <div class="root-letters">&#1603; &ndash; &#1578; &ndash; &#1576;</div>
+            </div>
+          </div>
+
+          <div class="quiz-options">
+            <div class="quiz-option">He read</div>
+            <div class="quiz-option correct">He wrote</div>
+            <div class="quiz-option">He said</div>
+            <div class="quiz-option selected">He went</div>
+          </div>
+        </div>
+      </div>
+      <div class="theme-label">Dark Theme &mdash; Lesson Screen</div>
+    </div>
+
+    <!-- Light Theme Phone -->
+    <div>
+      <div class="phone-frame light-phone">
+        <div class="status-bar">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <span class="icon-dot"></span>
+            <span class="icon-dot"></span>
+            <span class="icon-dot"></span>
+          </span>
+        </div>
+        <div class="screen-content">
+          <div class="dash-greeting">
+            <div class="dash-label">Assalamu Alaikum</div>
+            <div class="dash-name">Welcome back, Ibrahim</div>
+          </div>
+
+          <div class="progress-ring-card">
+            <div class="progress-ring">
+              <svg viewBox="0 0 72 72">
+                <circle class="ring-bg" cx="36" cy="36" r="30"></circle>
+                <circle class="ring-fill" cx="36" cy="36" r="30"></circle>
+              </svg>
+              <div class="ring-pct">70%</div>
+            </div>
+            <div class="progress-info">
+              <div class="progress-title">Unit 2: Verb Forms</div>
+              <div class="progress-sub">7 of 10 lessons complete</div>
+            </div>
+          </div>
+
+          <div class="streak-row">
+            <div class="streak-card gold-accent">
+              <div class="streak-num">12</div>
+              <div class="streak-label">Day Streak</div>
+            </div>
+            <div class="streak-card">
+              <div class="streak-num">84</div>
+              <div class="streak-label">Words Learned</div>
+            </div>
+            <div class="streak-card">
+              <div class="streak-num">92%</div>
+              <div class="streak-label">Accuracy</div>
+            </div>
+          </div>
+
+          <div class="pathway-section-label">Continue Learning</div>
+          <div class="pathway-card">
+            <div class="pw-icon">&#1601;</div>
+            <div class="pw-info">
+              <div class="pw-title">Form I: fa'ala</div>
+              <div class="pw-sub">3 new words &middot; 5 min</div>
+            </div>
+          </div>
+          <div class="pathway-card">
+            <div class="pw-icon">&#1606;</div>
+            <div class="pw-info">
+              <div class="pw-title">Nouns from Roots</div>
+              <div class="pw-sub">Review &middot; 8 min</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="theme-label">Light Theme &mdash; Dashboard</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     TYPOGRAPHY PREVIEW
+     ========================================== -->
+<section id="typography" class="section">
+  <div class="fade-in-up">
+    <div class="section-label">Typography</div>
+    <h2 class="section-title">Font Specimens</h2>
+    <p class="section-subtitle">Three complementary typefaces create a hierarchy: Amiri for Arabic script, Fraunces for headings, and Outfit for interface text.</p>
+  </div>
+
+  <div class="type-grid fade-in-up">
+    <!-- Dark Panel -->
+    <div class="type-panel dark-panel">
+      <div class="panel-label">On Dark Background</div>
+
+      <div class="type-sample">
+        <div class="type-meta">Amiri &mdash; Arabic Display / 48px</div>
+        <div class="type-text-amiri" style="font-size: 3rem;">&#1576;&#1616;&#1587;&#1618;&#1605;&#1616; &#1649;&#1604;&#1604;&#1617;&#1614;&#1607;&#1616; &#1649;&#1604;&#1585;&#1617;&#1614;&#1581;&#1618;&#1605;&#1614;&#1648;&#1606;&#1616; &#1649;&#1604;&#1585;&#1617;&#1614;&#1581;&#1616;&#1610;&#1605;&#1616;</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Amiri &mdash; Arabic Body / 24px</div>
+        <div class="type-text-amiri" style="font-size: 1.5rem;">&#1575;&#1602;&#1618;&#1585;&#1614;&#1571;&#1618; &#1576;&#1616;&#1575;&#1587;&#1618;&#1605;&#1616; &#1585;&#1614;&#1576;&#1617;&#1616;&#1603;&#1614; &#1575;&#1604;&#1617;&#1614;&#1584;&#1616;&#1610; &#1582;&#1614;&#1604;&#1614;&#1602;&#1614;</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Fraunces &mdash; Display / 36px</div>
+        <div class="type-text-fraunces" style="font-size: 2.25rem; font-weight: 500;">Divine Geometry</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Fraunces &mdash; Heading / 24px</div>
+        <div class="type-text-fraunces" style="font-size: 1.5rem; font-weight: 500;">Root Letter System</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Fraunces &mdash; Subheading / 18px</div>
+        <div class="type-text-fraunces" style="font-size: 1.125rem; font-weight: 600;">Verb Form Patterns</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Outfit &mdash; Body / 16px</div>
+        <div class="type-text-outfit" style="font-size: 1rem;">The Arabic root system connects words through shared three-letter roots, revealing deep semantic relationships between concepts.</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Outfit &mdash; Small / 14px</div>
+        <div class="type-text-outfit" style="font-size: 0.875rem; opacity: 0.6;">Lesson 3 of 10 &middot; 12 minutes remaining</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Outfit &mdash; Caption / 12px</div>
+        <div class="type-text-outfit" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4;">VOCABULARY &middot; UNIT 2</div>
+      </div>
+    </div>
+
+    <!-- Light Panel -->
+    <div class="type-panel light-panel">
+      <div class="panel-label">On Light Background</div>
+
+      <div class="type-sample">
+        <div class="type-meta">Amiri &mdash; Arabic Display / 48px</div>
+        <div class="type-text-amiri" style="font-size: 3rem;">&#1576;&#1616;&#1587;&#1618;&#1605;&#1616; &#1649;&#1604;&#1604;&#1617;&#1614;&#1607;&#1616; &#1649;&#1604;&#1585;&#1617;&#1614;&#1581;&#1618;&#1605;&#1614;&#1648;&#1606;&#1616; &#1649;&#1604;&#1585;&#1617;&#1614;&#1581;&#1616;&#1610;&#1605;&#1616;</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Amiri &mdash; Arabic Body / 24px</div>
+        <div class="type-text-amiri" style="font-size: 1.5rem;">&#1575;&#1602;&#1618;&#1585;&#1614;&#1571;&#1618; &#1576;&#1616;&#1575;&#1587;&#1618;&#1605;&#1616; &#1585;&#1614;&#1576;&#1617;&#1616;&#1603;&#1614; &#1575;&#1604;&#1617;&#1614;&#1584;&#1616;&#1610; &#1582;&#1614;&#1604;&#1614;&#1602;&#1614;</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Fraunces &mdash; Display / 36px</div>
+        <div class="type-text-fraunces" style="font-size: 2.25rem; font-weight: 500;">Divine Geometry</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Fraunces &mdash; Heading / 24px</div>
+        <div class="type-text-fraunces" style="font-size: 1.5rem; font-weight: 500;">Root Letter System</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Fraunces &mdash; Subheading / 18px</div>
+        <div class="type-text-fraunces" style="font-size: 1.125rem; font-weight: 600;">Verb Form Patterns</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Outfit &mdash; Body / 16px</div>
+        <div class="type-text-outfit" style="font-size: 1rem;">The Arabic root system connects words through shared three-letter roots, revealing deep semantic relationships between concepts.</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Outfit &mdash; Small / 14px</div>
+        <div class="type-text-outfit" style="font-size: 0.875rem; opacity: 0.6;">Lesson 3 of 10 &middot; 12 minutes remaining</div>
+      </div>
+
+      <div class="type-sample">
+        <div class="type-meta">Outfit &mdash; Caption / 12px</div>
+        <div class="type-text-outfit" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4;">VOCABULARY &middot; UNIT 2</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     COMPONENT EXAMPLES
+     ========================================== -->
+<section id="components" class="section">
+  <div class="fade-in-up">
+    <div class="section-label">Components</div>
+    <h2 class="section-title">UI Components</h2>
+    <p class="section-subtitle">Key interface elements shown in both dark and light themes, demonstrating the design system's flexibility and consistency.</p>
+  </div>
+
+  <div class="components-grid fade-in-up">
+    <!-- Dark Components -->
+    <div class="component-panel dark-comp">
+      <div class="comp-label">Dark Theme Components</div>
+
+      <div class="comp-row">
+        <div class="comp-row-label">Buttons</div>
+        <div class="btn-row">
+          <button class="btn-primary">Begin Lesson</button>
+          <button class="btn-secondary-dark">Review Words</button>
+        </div>
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-row-label">Input Field</div>
+        <input class="input-dark" type="text" placeholder="Type the transliteration...">
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-row-label">Content Card</div>
+        <div class="comp-card card-dark-content">
+          <div class="card-title">Lesson: Verb Conjugation</div>
+          <div class="card-text">Learn how Arabic verbs change form based on subject, tense, and voice.</div>
+        </div>
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-row-label">Glassmorphism Panel</div>
+        <div class="comp-card card-dark-glass">
+          <div class="card-title" style="color: var(--gold);">Root Discovery</div>
+          <div class="card-text">The root k-t-b appears in 14 words you have learned so far.</div>
+        </div>
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-row-label">Navigation Bar</div>
+        <div class="comp-nav comp-nav-dark">
+          <div class="nav-item-d">
+            <div class="nav-icon">H</div>
+            Home
+          </div>
+          <div class="nav-item-d active">
+            <div class="nav-icon">L</div>
+            Learn
+          </div>
+          <div class="nav-item-d">
+            <div class="nav-icon">R</div>
+            Review
+          </div>
+          <div class="nav-item-d">
+            <div class="nav-icon">P</div>
+            Profile
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Light Components -->
+    <div class="component-panel light-comp">
+      <div class="comp-label">Light Theme Components</div>
+
+      <div class="comp-row">
+        <div class="comp-row-label">Buttons</div>
+        <div class="btn-row">
+          <button class="btn-primary">Continue</button>
+          <button class="btn-secondary-light">View All</button>
+        </div>
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-row-label">Input Field</div>
+        <input class="input-light" type="text" placeholder="Search vocabulary...">
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-row-label">Content Card</div>
+        <div class="comp-card card-light-content">
+          <div class="card-title">Today's Review</div>
+          <div class="card-text">You have 12 words due for spaced repetition review today.</div>
+        </div>
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-row-label">Pathway Card</div>
+        <div class="comp-card card-light-pathway">
+          <div class="card-title">Unit 3: Noun Patterns</div>
+          <div class="card-text">Explore how Arabic nouns are formed from root letters using patterns.</div>
+        </div>
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-row-label">Navigation Bar</div>
+        <div class="comp-nav comp-nav-light">
+          <div class="nav-item-l active">
+            <div class="nav-icon">H</div>
+            Home
+          </div>
+          <div class="nav-item-l">
+            <div class="nav-icon">L</div>
+            Learn
+          </div>
+          <div class="nav-item-l">
+            <div class="nav-icon">R</div>
+            Review
+          </div>
+          <div class="nav-item-l">
+            <div class="nav-icon">P</div>
+            Profile
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     CONTRAST CHECKER
+     ========================================== -->
+<section id="contrast" class="section">
+  <div class="fade-in-up">
+    <div class="section-label">WCAG Compliance</div>
+    <h2 class="section-title">Contrast Ratios</h2>
+    <p class="section-subtitle">WCAG 2.1 contrast ratio matrix for all color combinations. AAA requires 7:1 for normal text, AA requires 4.5:1 for normal text and 3:1 for large text.</p>
+  </div>
+
+  <div class="contrast-table-wrapper fade-in-up">
+    <table class="contrast-table" id="contrastTable">
+      <thead>
+        <tr>
+          <th>Foreground / Background</th>
+          <th><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#0a1f1b;margin-right:4px;vertical-align:middle;border:1px solid rgba(255,255,255,0.2);"></span>Midnight</th>
+          <th><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#0f2e28;margin-right:4px;vertical-align:middle;border:1px solid rgba(255,255,255,0.2);"></span>Emerald</th>
+          <th><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f4f1ea;margin-right:4px;vertical-align:middle;"></span>Parchment</th>
+          <th><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#cfaa6b;margin-right:4px;vertical-align:middle;"></span>Gold</th>
+          <th><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#e8dcc5;margin-right:4px;vertical-align:middle;"></span>Cream</th>
+          <th><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2d6a4f;margin-right:4px;vertical-align:middle;border:1px solid rgba(255,255,255,0.2);"></span>Success</th>
+          <th><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d4a043;margin-right:4px;vertical-align:middle;"></span>Warning</th>
+          <th><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#c2636b;margin-right:4px;vertical-align:middle;"></span>Error</th>
+        </tr>
+      </thead>
+      <tbody id="contrastBody">
+        <!-- Populated by JavaScript -->
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ==========================================
+     ACCESSIBILITY / COLOR BLINDNESS
+     ========================================== -->
+<section id="accessibility" class="section">
+  <div class="fade-in-up">
+    <div class="section-label">Accessibility</div>
+    <h2 class="section-title">Color Vision Simulations</h2>
+    <p class="section-subtitle">How the Safar palette appears to users with common forms of color vision deficiency. The palette's reliance on luminance contrast (not hue alone) ensures readability across all conditions.</p>
+  </div>
+
+  <div class="cb-grid fade-in-up">
+
+    <!-- Normal Vision -->
+    <div class="cb-panel">
+      <div class="cb-title">Normal Vision (Trichromacy)</div>
+      <div class="cb-desc">Full color perception &mdash; baseline reference.</div>
+      <div class="cb-swatches">
+        <div class="cb-swatch" style="background: #0a1f1b;"><span class="cb-swatch-label">Midnight</span></div>
+        <div class="cb-swatch" style="background: #0f2e28;"><span class="cb-swatch-label">Emerald</span></div>
+        <div class="cb-swatch" style="background: #2d6a4f;"><span class="cb-swatch-label">Success</span></div>
+        <div class="cb-swatch" style="background: #cfaa6b;"><span class="cb-swatch-label">Gold</span></div>
+        <div class="cb-swatch" style="background: #d4a043;"><span class="cb-swatch-label">Warning</span></div>
+        <div class="cb-swatch" style="background: #e8dcc5;"><span class="cb-swatch-label">Cream</span></div>
+        <div class="cb-swatch" style="background: #f4f1ea;"><span class="cb-swatch-label">Parchment</span></div>
+        <div class="cb-swatch" style="background: #c2636b;"><span class="cb-swatch-label">Error</span></div>
+      </div>
+    </div>
+
+    <!-- Protanopia -->
+    <div class="cb-panel">
+      <div class="cb-title">Protanopia</div>
+      <div class="cb-desc">No red cone receptors (~1% of males). Reds appear dark; greens and reds converge.</div>
+      <div class="cb-swatches" style="filter: url(#protanopia);">
+        <div class="cb-swatch" style="background: #0a1f1b;"><span class="cb-swatch-label">Midnight</span></div>
+        <div class="cb-swatch" style="background: #0f2e28;"><span class="cb-swatch-label">Emerald</span></div>
+        <div class="cb-swatch" style="background: #2d6a4f;"><span class="cb-swatch-label">Success</span></div>
+        <div class="cb-swatch" style="background: #cfaa6b;"><span class="cb-swatch-label">Gold</span></div>
+        <div class="cb-swatch" style="background: #d4a043;"><span class="cb-swatch-label">Warning</span></div>
+        <div class="cb-swatch" style="background: #e8dcc5;"><span class="cb-swatch-label">Cream</span></div>
+        <div class="cb-swatch" style="background: #f4f1ea;"><span class="cb-swatch-label">Parchment</span></div>
+        <div class="cb-swatch" style="background: #c2636b;"><span class="cb-swatch-label">Error</span></div>
+      </div>
+    </div>
+
+    <!-- Deuteranopia -->
+    <div class="cb-panel">
+      <div class="cb-title">Deuteranopia</div>
+      <div class="cb-desc">No green cone receptors (~1% of males). Most common form; greens and reds are indistinguishable.</div>
+      <div class="cb-swatches" style="filter: url(#deuteranopia);">
+        <div class="cb-swatch" style="background: #0a1f1b;"><span class="cb-swatch-label">Midnight</span></div>
+        <div class="cb-swatch" style="background: #0f2e28;"><span class="cb-swatch-label">Emerald</span></div>
+        <div class="cb-swatch" style="background: #2d6a4f;"><span class="cb-swatch-label">Success</span></div>
+        <div class="cb-swatch" style="background: #cfaa6b;"><span class="cb-swatch-label">Gold</span></div>
+        <div class="cb-swatch" style="background: #d4a043;"><span class="cb-swatch-label">Warning</span></div>
+        <div class="cb-swatch" style="background: #e8dcc5;"><span class="cb-swatch-label">Cream</span></div>
+        <div class="cb-swatch" style="background: #f4f1ea;"><span class="cb-swatch-label">Parchment</span></div>
+        <div class="cb-swatch" style="background: #c2636b;"><span class="cb-swatch-label">Error</span></div>
+      </div>
+    </div>
+
+    <!-- Tritanopia -->
+    <div class="cb-panel">
+      <div class="cb-title">Tritanopia</div>
+      <div class="cb-desc">No blue cone receptors (~0.003%). Blues appear greenish; yellows and oranges appear pinkish.</div>
+      <div class="cb-swatches" style="filter: url(#tritanopia);">
+        <div class="cb-swatch" style="background: #0a1f1b;"><span class="cb-swatch-label">Midnight</span></div>
+        <div class="cb-swatch" style="background: #0f2e28;"><span class="cb-swatch-label">Emerald</span></div>
+        <div class="cb-swatch" style="background: #2d6a4f;"><span class="cb-swatch-label">Success</span></div>
+        <div class="cb-swatch" style="background: #cfaa6b;"><span class="cb-swatch-label">Gold</span></div>
+        <div class="cb-swatch" style="background: #d4a043;"><span class="cb-swatch-label">Warning</span></div>
+        <div class="cb-swatch" style="background: #e8dcc5;"><span class="cb-swatch-label">Cream</span></div>
+        <div class="cb-swatch" style="background: #f4f1ea;"><span class="cb-swatch-label">Parchment</span></div>
+        <div class="cb-swatch" style="background: #c2636b;"><span class="cb-swatch-label">Error</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-line"></div>
+  <p>Safar Design System &middot; Divine Geometry Color Theme Visualizer</p>
+  <p style="margin-top: 4px;">Generated for the Safar Quranic Arabic Learning App</p>
+</footer>
+
+<!-- SVG FILTERS FOR COLOR BLINDNESS SIMULATION -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;">
+  <defs>
+    <!-- Protanopia: no red cones -->
+    <filter id="protanopia">
+      <feColorMatrix type="matrix" values="
+        0.567, 0.433, 0.000, 0, 0
+        0.558, 0.442, 0.000, 0, 0
+        0.000, 0.242, 0.758, 0, 0
+        0,     0,     0,     1, 0
+      "/>
+    </filter>
+    <!-- Deuteranopia: no green cones -->
+    <filter id="deuteranopia">
+      <feColorMatrix type="matrix" values="
+        0.625, 0.375, 0.000, 0, 0
+        0.700, 0.300, 0.000, 0, 0
+        0.000, 0.300, 0.700, 0, 0
+        0,     0,     0,     1, 0
+      "/>
+    </filter>
+    <!-- Tritanopia: no blue cones -->
+    <filter id="tritanopia">
+      <feColorMatrix type="matrix" values="
+        0.950, 0.050, 0.000, 0, 0
+        0.000, 0.433, 0.567, 0, 0
+        0.000, 0.475, 0.525, 0, 0
+        0,     0,     0,     1, 0
+      "/>
+    </filter>
+  </defs>
+</svg>
+
+<script>
+// ========================================
+// SCROLL ANIMATION (Intersection Observer)
+// ========================================
+document.addEventListener('DOMContentLoaded', () => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    },
+    { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+  );
+
+  document.querySelectorAll('.fade-in-up').forEach((el) => {
+    observer.observe(el);
+  });
+
+  // Build contrast table
+  buildContrastTable();
+});
+
+// ========================================
+// COPY COLOR TO CLIPBOARD
+// ========================================
+function copyColor(card) {
+  const color = card.getAttribute('data-color');
+  if (!color) return;
+
+  navigator.clipboard.writeText(color).then(() => {
+    const tooltip = document.getElementById('copyTooltip');
+    tooltip.textContent = `Copied: ${color}`;
+    tooltip.classList.add('show');
+    setTimeout(() => tooltip.classList.remove('show'), 1800);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = color;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const tooltip = document.getElementById('copyTooltip');
+    tooltip.textContent = `Copied: ${color}`;
+    tooltip.classList.add('show');
+    setTimeout(() => tooltip.classList.remove('show'), 1800);
+  });
+}
+
+// ========================================
+// CONTRAST RATIO CALCULATOR
+// ========================================
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  return {
+    r: parseInt(hex.substring(0, 2), 16),
+    g: parseInt(hex.substring(2, 4), 16),
+    b: parseInt(hex.substring(4, 6), 16),
+  };
+}
+
+function srgbToLinear(c) {
+  c = c / 255;
+  return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+}
+
+function relativeLuminance(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
+}
+
+function contrastRatio(hex1, hex2) {
+  const l1 = relativeLuminance(hex1);
+  const l2 = relativeLuminance(hex2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function ratingClass(ratio) {
+  if (ratio >= 7) return 'aaa';
+  if (ratio >= 4.5) return 'aa';
+  if (ratio >= 3) return 'aa-large';
+  return 'fail';
+}
+
+function ratingLabel(ratio) {
+  if (ratio >= 7) return 'AAA';
+  if (ratio >= 4.5) return 'AA';
+  if (ratio >= 3) return 'AA-L';
+  return 'Fail';
+}
+
+function buildContrastTable() {
+  const colors = [
+    { name: 'Midnight',  hex: '#0a1f1b' },
+    { name: 'Deep Emerald', hex: '#0f2e28' },
+    { name: 'Parchment', hex: '#f4f1ea' },
+    { name: 'Gold',      hex: '#cfaa6b' },
+    { name: 'Cream',     hex: '#e8dcc5' },
+    { name: 'Success',   hex: '#2d6a4f' },
+    { name: 'Warning',   hex: '#d4a043' },
+    { name: 'Error',     hex: '#c2636b' },
+  ];
+
+  const tbody = document.getElementById('contrastBody');
+  if (!tbody) return;
+
+  colors.forEach((fg) => {
+    const tr = document.createElement('tr');
+
+    // Row label
+    const labelTd = document.createElement('td');
+    labelTd.className = 'row-label';
+    labelTd.innerHTML = `<span class="color-dot" style="background:${fg.hex};"></span>${fg.name}`;
+    tr.appendChild(labelTd);
+
+    colors.forEach((bg) => {
+      const td = document.createElement('td');
+      if (fg.hex === bg.hex) {
+        td.className = 'ratio-cell self';
+        td.textContent = '---';
+      } else {
+        const ratio = contrastRatio(fg.hex, bg.hex);
+        const cls = ratingClass(ratio);
+        const label = ratingLabel(ratio);
+        td.className = `ratio-cell ${cls}`;
+        td.textContent = `${ratio.toFixed(1)} ${label}`;
+        td.title = `${fg.name} on ${bg.name}: ${ratio.toFixed(2)}:1`;
+      }
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+</script>
+
+</body>
+</html>
