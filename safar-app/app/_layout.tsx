@@ -11,7 +11,11 @@ import { Fraunces_400Regular, Fraunces_600SemiBold } from '@expo-google-fonts/fr
 import { Outfit_400Regular, Outfit_600SemiBold } from '@expo-google-fonts/outfit';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import type { Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/api/supabase';
+import {
+  clearLocalSupabaseSession,
+  isInvalidRefreshTokenError,
+  supabase,
+} from '@/lib/api/supabase';
 import { useNotificationHandler } from '@/lib/hooks/useNotificationHandler';
 import { configureNotificationHandler } from '@/lib/notifications/notificationService';
 import {
@@ -75,8 +79,9 @@ export default function RootLayout() {
           console.log('App: Initializing...');
         }
 
-        // Initialize RevenueCat SDK (best effort).
-        await initializePurchases().catch(() => {});
+        // RevenueCat SDK initialization skipped (FREE_MODE).
+        // Uncomment when ready to enable subscriptions:
+        // await initializePurchases().catch(() => {});
 
         // Try to get session with timeout.
         const sessionPromise = supabase.auth.getSession();
@@ -87,20 +92,41 @@ export default function RootLayout() {
         let initialSession: Session | null = null;
 
         try {
-          const result = await Promise.race([sessionPromise, timeoutPromise]);
-          initialSession = result?.data?.session ?? null;
+          const result = (await Promise.race([sessionPromise, timeoutPromise])) as Awaited<
+            ReturnType<typeof supabase.auth.getSession>
+          >;
 
-          if (isMounted && result?.data?.session !== undefined) {
-            await setSession(result.data.session);
+          if (result.error) {
+            if (isInvalidRefreshTokenError(result.error)) {
+              await clearLocalSupabaseSession();
+            } else if (__DEV__) {
+              console.warn('App: Auth initialization skipped:', result.error);
+            }
+
+            if (isMounted) {
+              await setSession(null);
+            }
+          } else {
+            initialSession = result.data.session ?? null;
+            if (isMounted) {
+              await setSession(initialSession);
+            }
           }
         } catch (authError) {
-          if (__DEV__) {
+          if (isInvalidRefreshTokenError(authError)) {
+            await clearLocalSupabaseSession();
+            if (isMounted) {
+              await setSession(null);
+            }
+          } else if (__DEV__) {
             console.warn('App: Auth initialization skipped:', authError);
           }
           // Keep auth initialization resilient.
         }
 
-        await syncRevenueCatAuthState(initialSession?.user?.id);
+        // RevenueCat auth sync skipped (FREE_MODE).
+        // Uncomment when ready to enable subscriptions:
+        // await syncRevenueCatAuthState(initialSession?.user?.id);
       } catch (error) {
         if (__DEV__) {
           console.error('App: Initialization error:', error);
@@ -125,7 +151,8 @@ export default function RootLayout() {
       }
       if (isMounted) {
         await useAuthStore.getState().setSession(session);
-        await syncRevenueCatAuthState(session?.user?.id);
+        // RevenueCat auth sync skipped (FREE_MODE).
+        // await syncRevenueCatAuthState(session?.user?.id);
       }
     });
 

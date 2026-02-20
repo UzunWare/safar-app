@@ -359,6 +359,105 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_settings: {
+        Row: {
+          user_id: string;
+          streak_reminders: boolean;
+          review_reminders: boolean;
+          learning_reminders: boolean;
+          sound_enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          streak_reminders?: boolean;
+          review_reminders?: boolean;
+          learning_reminders?: boolean;
+          sound_enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          streak_reminders?: boolean;
+          review_reminders?: boolean;
+          learning_reminders?: boolean;
+          sound_enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      export_requests: {
+        Row: {
+          id: string;
+          user_id: string;
+          email: string;
+          status: string;
+          requested_at: string;
+          completed_at: string | null;
+          download_url: string | null;
+          expires_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          email: string;
+          status?: string;
+          requested_at?: string;
+          completed_at?: string | null;
+          download_url?: string | null;
+          expires_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          email?: string;
+          status?: string;
+          requested_at?: string;
+          completed_at?: string | null;
+          download_url?: string | null;
+          expires_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      deletion_requests: {
+        Row: {
+          id: string;
+          user_id: string;
+          email: string;
+          type: string;
+          status: string;
+          requested_at: string;
+          completed_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          email: string;
+          type?: string;
+          status?: string;
+          requested_at?: string;
+          completed_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          email?: string;
+          type?: string;
+          status?: string;
+          requested_at?: string;
+          completed_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       user_profiles: {
         Row: {
           avatar_url: string | null;
@@ -685,6 +784,11 @@ export type UserXpUpdate = Database['public']['Tables']['user_xp']['Update'];
 export type UserStreak = Database['public']['Tables']['user_streaks']['Row'];
 export type UserStreakInsert = Database['public']['Tables']['user_streaks']['Insert'];
 export type UserStreakUpdate = Database['public']['Tables']['user_streaks']['Update'];
+
+export type UserSettings = Database['public']['Tables']['user_settings']['Row'];
+export type UserSettingsInsert = Database['public']['Tables']['user_settings']['Insert'];
+export type ExportRequest = Database['public']['Tables']['export_requests']['Row'];
+export type DeletionRequest = Database['public']['Tables']['deletion_requests']['Row'];
 
 // Composed types
 export interface PathwayWithUnits extends Pathway {

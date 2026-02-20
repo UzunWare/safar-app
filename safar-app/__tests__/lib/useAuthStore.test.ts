@@ -224,6 +224,30 @@ describe('useAuthStore - onboarding caching', () => {
   });
 
   describe('signUp duplicate detection', () => {
+    it('maps confirmation email delivery failures to a user-friendly message', async () => {
+      (supabase.auth.signUp as jest.Mock).mockResolvedValue({
+        data: { user: null, session: null },
+        error: {
+          message: 'Error sending confirmation email',
+        },
+      });
+
+      const { result } = renderHook(() => useAuthStore());
+
+      let response: { success: boolean; error?: string } | undefined;
+      await act(async () => {
+        response = await result.current.signUp('new@example.com', 'password123');
+      });
+
+      expect(response).toEqual({
+        success: false,
+        error: 'We could not send the confirmation email. Please try again shortly.',
+      });
+      expect(result.current.error).toBe(
+        'We could not send the confirmation email. Please try again shortly.'
+      );
+    });
+
     it('detects existing confirmed account via empty identities array', async () => {
       (supabase.auth.signUp as jest.Mock).mockResolvedValue({
         data: {

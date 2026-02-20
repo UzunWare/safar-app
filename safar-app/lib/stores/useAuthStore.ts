@@ -11,6 +11,8 @@ import { storeAuthToken, removeAuthToken } from '@/lib/api/secure-storage';
 import { timeouts } from '@/constants/timeouts';
 
 const SIGN_IN_NETWORK_ERROR = 'Unable to connect. Please check your internet connection.';
+const SIGN_UP_EMAIL_DELIVERY_ERROR =
+  'We could not send the confirmation email. Please try again shortly.';
 
 async function withTimeout<T>(
   promise: PromiseLike<T> | T,
@@ -51,6 +53,42 @@ function getSignInErrorMessage(error: unknown): string {
 
   if (normalized.includes('rate limit') || normalized.includes('security purposes')) {
     return 'Please wait a moment before trying again';
+  }
+
+  return rawMessage;
+}
+
+function getSignUpErrorMessage(error: unknown): string {
+  const rawMessage =
+    typeof error === 'string'
+      ? error
+      : error instanceof Error
+        ? error.message
+        : typeof error === 'object' && error !== null && 'message' in error
+          ? String((error as { message?: unknown }).message ?? 'Registration failed')
+          : 'Registration failed';
+  const normalized = rawMessage.toLowerCase();
+
+  if (normalized.includes('already registered')) {
+    return 'An account with this email already exists';
+  }
+
+  if (normalized.includes('error sending confirmation email')) {
+    return SIGN_UP_EMAIL_DELIVERY_ERROR;
+  }
+
+  if (
+    normalized.includes('timed out') ||
+    normalized.includes('timeout') ||
+    normalized.includes('network') ||
+    normalized.includes('fetch') ||
+    normalized.includes('unable to connect')
+  ) {
+    return SIGN_IN_NETWORK_ERROR;
+  }
+
+  if (normalized.includes('rate limit') || normalized.includes('security purposes')) {
+    return 'Too many attempts. Please wait a moment before trying again.';
   }
 
   return rawMessage;
@@ -167,15 +205,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       );
 
       if (error) {
-        let message = error.message;
-
-        // Map common errors to user-friendly messages
-        if (error.message.includes('already registered')) {
-          message = 'An account with this email already exists';
-        } else if (error.message.includes('security purposes') || error.message.includes('rate limit')) {
-          message = 'Too many attempts. Please wait a moment before trying again.';
+        const message = getSignUpErrorMessage(error);
+        if (__DEV__ && message === SIGN_UP_EMAIL_DELIVERY_ERROR) {
+          console.warn(
+            'Supabase sign-up email delivery failed. Check Auth > Email provider/SMTP settings.'
+          );
         }
-
         set({ isLoading: false, error: message });
         return { success: false, error: message };
       }
@@ -198,7 +233,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         };
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Registration failed';
+      const message = getSignUpErrorMessage(err);
+      if (__DEV__ && message === SIGN_UP_EMAIL_DELIVERY_ERROR) {
+        console.warn(
+          'Supabase sign-up email delivery failed. Check Auth > Email provider/SMTP settings.'
+        );
+      }
       set({ isLoading: false, error: message });
       return { success: false, error: message };
     }

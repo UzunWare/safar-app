@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Email Change - Safar</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background-color: #F5F1E8;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #0D7C66 0%, #1A3A33 100%); padding: 40px 40px 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                            <h1 style="margin: 0; color: #D4AF37; font-size: 32px; font-weight: 600; letter-spacing: 2px;">SAFAR</h1>
+                            <p style="margin: 8px 0 0; color: #B4E4D3; font-size: 14px; letter-spacing: 1px; text-transform: uppercase;">Understand What You Recite</p>
+                        </td>
+                    </tr>
+
+                    <!-- Main content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <h2 style="margin: 0 0 20px; color: #1A3A33; font-size: 24px; font-weight: 600;">Confirm Your New Email Address</h2>
+
+                            <p style="margin: 0 0 20px; color: #333; font-size: 16px; line-height: 1.6;">
+                                As-salamu alaykum,
+                            </p>
+
+                            <p style="margin: 0 0 20px; color: #333; font-size: 16px; line-height: 1.6;">
+                                You recently requested to change the email address for your Safar account. To confirm this change, please click the button below:
+                            </p>
+
+                            <!-- CTA Button -->
+                            <table role="presentation" style="margin: 30px 0; width: 100%;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #0D7C66 0%, #1A3A33 100%); color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(13, 124, 102, 0.3);">
+                                            Confirm Email Change
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 20px 0; color: #666; font-size: 14px; line-height: 1.6;">
+                                Or copy and paste this link into your browser:
+                            </p>
+
+                            <p style="margin: 0 0 30px; padding: 12px; background-color: #F5F1E8; border-left: 3px solid #0D7C66; font-size: 13px; word-break: break-all; color: #0D7C66;">
+                                {{ .ConfirmationURL }}
+                            </p>
+
+                            <div style="background-color: #E8F5F1; border-left: 4px solid #0D7C66; padding: 16px; margin: 30px 0;">
+                                <p style="margin: 0 0 10px; color: #1A3A33; font-size: 14px; font-weight: 600;">
+                                    ℹ️ What happens next?
+                                </p>
+                                <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.6;">
+                                    After confirming, this email address will become your new login email. Your learning progress and streak will remain intact.
+                                </p>
+                            </div>
+
+                            <hr style="border: none; border-top: 1px solid #E0E0E0; margin: 30px 0;">
+
+                            <p style="margin: 0; color: #999; font-size: 13px; line-height: 1.6;">
+                                If you didn't request this email change, please <a href="mailto:emre@sekine.app" style="color: #0D7C66; text-decoration: none;">contact support</a> immediately to secure your account.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #F5F1E8; padding: 30px 40px; text-align: center; border-radius: 0 0 8px 8px;">
+                            <p style="margin: 0 0 10px; color: #0D7C66; font-size: 14px; font-style: italic;">
+                                "Indeed, in the remembrance of Allah do hearts find rest." — Quran 13:28
+                            </p>
+
+                            <p style="margin: 20px 0 0; color: #999; font-size: 12px;">
+                                © 2026 Safar by UzunWare • Free & Open Source
+                            </p>
+
+                            <p style="margin: 10px 0 0; color: #999; font-size: 12px;">
+                                <a href="https://sekine.app" style="color: #0D7C66; text-decoration: none;">Privacy Policy</a> •
+                                <a href="mailto:emre@sekine.app" style="color: #0D7C66; text-decoration: none;">Support</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

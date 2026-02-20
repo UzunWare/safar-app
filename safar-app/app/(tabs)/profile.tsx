@@ -5,10 +5,11 @@
  * UPDATED: Story 4.6 - Added learning state summary (Issue #3 fix)
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
 import { Zap, BookOpen, LogOut, Settings, Star } from 'lucide-react-native';
 import { router } from 'expo-router';
+import Constants from 'expo-constants';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { resetOnboarding } from '@/lib/api/progress';
 import { ScreenBackground } from '@/components/ui/ScreenBackground';
@@ -25,12 +26,19 @@ import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import '@/global.css';
 
-const BADGES = [
-  { id: 1, name: 'First Step', icon: '🌱', earned: true },
-  { id: 2, name: 'Root Seeker', icon: '🔍', earned: true },
-  { id: 3, name: 'Salah Master', icon: '🕌', earned: false },
-  { id: 4, name: 'Daily Star', icon: '⭐', earned: false },
-];
+function getUserLevel(totalXp: number): string {
+  if (totalXp >= 1000) return 'Master';
+  if (totalXp >= 500) return 'Scholar';
+  if (totalXp >= 200) return 'Explorer';
+  if (totalXp >= 50) return 'Learner';
+  return 'Seeker';
+}
+
+function getUserInitial(user: { email?: string } | null): string {
+  if (!user?.email) return 'س';
+  const firstChar = user.email.charAt(0).toUpperCase();
+  return firstChar || 'س';
+}
 
 export default function ProfileScreen() {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
@@ -47,7 +55,22 @@ export default function ProfileScreen() {
   const { data: summary, error: summaryError } = useLearningStateSummary();
   const { data: masteredCount, error: masteredError } = useMasteredCount();
   const { totalXp } = useXp();
-  const { currentStreak, status: streakStatus } = useStreak();
+  const { currentStreak, longestStreak, status: streakStatus } = useStreak();
+
+  const userLevel = getUserLevel(totalXp);
+  const userInitial = getUserInitial(user);
+
+  // Compute badges from real progress data
+  const badges = useMemo(() => {
+    const wordsStarted = (summary?.learning ?? 0) + (summary?.review ?? 0) + (summary?.mastered ?? 0);
+    const mastered = masteredCount ?? 0;
+    return [
+      { id: 1, name: 'First Step', icon: '🌱', earned: wordsStarted > 0 },
+      { id: 2, name: 'Root Seeker', icon: '🔍', earned: mastered >= 5 },
+      { id: 3, name: 'Salah Master', icon: '🕌', earned: mastered >= 50 },
+      { id: 4, name: 'Daily Star', icon: '⭐', earned: longestStreak >= 7 },
+    ];
+  }, [summary, masteredCount, longestStreak]);
 
   const handleSignOut = async () => {
     setShowSignOutDialog(false);
@@ -104,7 +127,7 @@ export default function ProfileScreen() {
                     fontSize: 16,
                     color: 'rgba(15, 46, 40, 0.6)',
                   }}>
-                  Level: Seeker
+                  Level: {userLevel}
                 </Text>
               </View>
               {/* Arabic avatar */}
@@ -119,7 +142,7 @@ export default function ProfileScreen() {
                   borderWidth: 2,
                   borderColor: colors.gold,
                 }}>
-                <Text style={{ fontFamily: fonts.amiri, fontSize: 24, color: colors.gold }}>ع</Text>
+                <Text style={{ fontFamily: fonts.amiri, fontSize: 24, color: colors.gold }}>{userInitial}</Text>
               </View>
             </View>
           </Pressable>
@@ -479,7 +502,7 @@ export default function ProfileScreen() {
               borderColor: 'rgba(15, 46, 40, 0.05)',
             }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              {BADGES.map((badge) => (
+              {badges.map((badge) => (
                 <DiamondBadge
                   key={badge.id}
                   icon={badge.icon}
@@ -596,7 +619,7 @@ export default function ProfileScreen() {
                 textAlign: 'center',
                 color: 'rgba(15, 46, 40, 0.3)',
               }}>
-              Version 0.8.2 · Safar Beta
+              Version {Constants.expoConfig?.version ?? '1.0.0'}
             </Text>
           </View>
         </View>

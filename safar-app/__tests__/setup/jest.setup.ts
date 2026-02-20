@@ -252,4 +252,6 @@ jest.mock('@/lib/api/supabase', () => ({
     },
   },
   isSupabaseConfigured: jest.fn(() => true),
+  isInvalidRefreshTokenError: jest.fn(() => false),
+  clearLocalSupabaseSession: jest.fn(() => Promise.resolve()),
 }));

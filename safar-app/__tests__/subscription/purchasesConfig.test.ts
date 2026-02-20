@@ -47,6 +47,7 @@ describe('initializePurchases', () => {
       ...originalEnv,
       EXPO_PUBLIC_REVENUECAT_IOS_KEY: 'test-ios-key',
       EXPO_PUBLIC_REVENUECAT_ANDROID_KEY: 'test-android-key',
+      EXPO_PUBLIC_REVENUECAT_API_KEY: undefined,
     };
   });
 
@@ -73,6 +74,20 @@ describe('initializePurchases', () => {
 
     expect(mockConfigure).toHaveBeenCalledWith({
       apiKey: 'test-android-key',
+    });
+  });
+
+  it('should fall back to EXPO_PUBLIC_REVENUECAT_API_KEY when platform key is missing', async () => {
+    mockPlatformOS = 'ios';
+    process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY = undefined;
+    process.env.EXPO_PUBLIC_REVENUECAT_API_KEY = 'fallback-key';
+
+    const { initializePurchases } = setupMocksAndGetModule();
+
+    await initializePurchases();
+
+    expect(mockConfigure).toHaveBeenCalledWith({
+      apiKey: 'fallback-key',
     });
   });
 

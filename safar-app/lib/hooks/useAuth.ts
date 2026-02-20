@@ -6,7 +6,11 @@
 import { useEffect } from 'react';
 import { useRouter, useSegments } from 'expo-router';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
-import { supabase } from '@/lib/api/supabase';
+import {
+  clearLocalSupabaseSession,
+  isInvalidRefreshTokenError,
+  supabase,
+} from '@/lib/api/supabase';
 
 /**
  * Initialize auth session and listen for changes
@@ -28,6 +32,15 @@ export function useAuthInit() {
         } = await supabase.auth.getSession();
 
         if (error) {
+          if (isInvalidRefreshTokenError(error)) {
+            await clearLocalSupabaseSession();
+            if (isMounted) {
+              await setSession(null);
+              setInitialized(true);
+            }
+            return;
+          }
+
           if (__DEV__) {
             console.warn('Failed to get session:', error.message);
           }
@@ -39,6 +52,15 @@ export function useAuthInit() {
           setInitialized(true);
         }
       } catch (error) {
+        if (isInvalidRefreshTokenError(error)) {
+          await clearLocalSupabaseSession();
+          if (isMounted) {
+            await setSession(null);
+            setInitialized(true);
+          }
+          return;
+        }
+
         if (__DEV__) {
           console.error('Auth initialization error:', error);
         }
